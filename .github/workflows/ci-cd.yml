@@ -1,3 +1,4 @@
+
 name: CI/CD Pipeline
 
 on:
@@ -12,6 +13,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -22,19 +26,21 @@ jobs:
         env:
           OPENWEATHERMAP_API_KEY: ${{ secrets.OPENWEATHERMAP_API_KEY }}
         run: |
-          docker build --build-arg OPENWEATHERMAP_API_KEY=$OPENWEATHERMAP_API_KEY -t ${{ secrets.DOCKER_HUB_USERNAME }}/weather-service:latest -f weather-data-service/Dockerfile ./weather-data-service
+          cd weather-data-service
+          docker build --build-arg OPENWEATHERMAP_API_KEY=$OPENWEATHERMAP_API_KEY -t ${{ secrets.DOCKER_HUB_USERNAME }}/weather-service:latest .
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/weather-service:latest
 
       - name: Build and push Docker image (User Preferences Service)
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/user-preferences-service:latest -f user-preferences-service/Dockerfile ./user-preferences-service
+          cd user-preferences-service
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/user-preferences-service:latest .
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/user-preferences-service:latest
 
       - name: Build and push Docker image (User Notification Service)
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/user-notification-service:latest -f user-notification-service/Dockerfile ./user-notification-service
+          cd user-notification-service
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/user-notification-service:latest .
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/user-notification-service:latest
-
 
 
 
